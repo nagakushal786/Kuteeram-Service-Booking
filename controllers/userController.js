@@ -117,10 +117,17 @@ export const bookService=async (req, res)=> {
       });
     }
 
-    user.services_booked[name]={
-      serviceId: service._id,
-      bookedAt: new Date().toISOString()
-    };
+    if(service.availability){
+      user.services_booked[name]={
+        serviceId: service._id,
+        bookedAt: new Date().toISOString()
+      };
+    }else{
+      return res.status(400).json({
+        success: false,
+        message: "Service not available, user can't book this service!"
+      });
+    }
 
     await user.save();
 
