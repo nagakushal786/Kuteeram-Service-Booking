@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 
-export const verifyToken=(req, res, next)=> {
+export const verifyTokenBuyer=(req, res, next)=> {
     try{
-        const token=req.cookies.token;
+        const token=req.cookies.buyerToken;
         if(!token){
             return res.status(400).json({
-                message: "User unauthorized",
+                message: "Buyer unauthorized",
                 success: false
             });
         }

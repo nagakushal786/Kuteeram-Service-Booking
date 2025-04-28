@@ -1,9 +1,9 @@
 import express from "express";
 import {config} from "dotenv";
 import connectDB from "./config/connectDB.js";
-import userRouter from "./routes/userRouter.js";
 import cookieParser from "cookie-parser";
-import serviceRouter from "./routes/serviceRouter.js";
+import buyerRouter from "./routes/buyerRouter.js";
+import sellerRouter from "./routes/sellerRouter.js";
 
 config({path: "./env/config.env"});
 
@@ -13,11 +13,11 @@ server.use(express.json());
 server.use(cookieParser());
 connectDB();
 
-server.use("/api/user", userRouter);
-server.use("/api/service", serviceRouter);
+server.use("/api/buyer", buyerRouter);
+server.use("/api/seller", sellerRouter);
 
 server.get("/", (req, res)=> {
-  res.send("Welcome to the server");
+  res.send("Welcome to the kuteeram server");
 });
 
 server.listen(process.env.PORT, ()=> {
