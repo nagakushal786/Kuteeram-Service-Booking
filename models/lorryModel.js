@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-const sellerSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+const lorrySchema = new mongoose.Schema({
+  agencyName: { type: String, required: true },
   phone: {
     type: String,
     required: true,
@@ -12,8 +12,6 @@ const sellerSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid Indian phone number!`
     }
   },
-  riceMillName: { type: String, required: true },
-  city: { type: String, required: true },
   gps: {
     type: {
       type: String,
@@ -32,11 +30,24 @@ const sellerSchema = new mongoose.Schema({
       }
     }
   },
-  products: { type: Object, default: {} }
+  available: { type: Boolean, default: true },
+  vehicleNumber: { type: String, required: true },
+  driverName: { type: String, required: true },
+  driverPhone: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^\+91\d{10}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid Indian phone number!`
+    }
+  },
+  currentOrder: { type: mongoose.Schema.Types.ObjectId, ref: "Order" }
 });
 
-sellerSchema.index({ gps: "2dsphere" });
+lorrySchema.index({ gps: "2dsphere" });
 
-const sellerModel = mongoose.model("Seller", sellerSchema);
+const lorryModel = mongoose.model("Lorry", lorrySchema);
 
-export default sellerModel;
+export default lorryModel;

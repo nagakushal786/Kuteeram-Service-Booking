@@ -1,6 +1,7 @@
 import productModel from "../models/productModel.js";
 import sellerModel from "../models/sellerModel.js";
 import generateTokenSeller from "../utils/generateTokenSeller.js";
+import orderModel from "../models/orderModel.js";
 
 
 export const sellerSignup=async (req, res)=> {
@@ -89,9 +90,9 @@ export const checkAuthSeller=async (req, res)=> {
 }
 
 export const addProduct=async (req, res)=> {
-  const {name, productType, quantity, price}=req.body;
+  const {name, productType, quantity, price, minimumAcceptablePrice}=req.body;
 
-  if(!name || !productType || !quantity || !price){
+  if(!name || !productType || !quantity || !price || !minimumAcceptablePrice){
     return res.status(400).json({
       success: false,
       message: "Please provide all details of the product!"
@@ -124,12 +125,19 @@ export const addProduct=async (req, res)=> {
     });
   }
 
+  if (!seller.products) {
+    seller.products = {};
+  }
+
   seller.products[name]={
     type: productType,
     quantity,
     price,
+    minimumAcceptablePrice,
     addedAt: new Date().toISOString()
   };
+
+  seller.markModified('products');
 
   await seller.save();
 
@@ -222,3 +230,48 @@ export const getAllProducts=async (req, res)=> {
     products
   });
 }
+
+export const acceptPendingOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide orderId"
+      });
+    }
+
+    const order = await orderModel.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    if (order.status !== "Pending") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot accept an order with status '${order.status}'`
+      });
+    }
+
+    order.status = "Accepted";
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order accepted successfully!",
+      order
+    });
+
+  } catch (error) {
+    console.error("Error in accepting pending order:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
